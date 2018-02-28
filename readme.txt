@@ -1,5 +1,4 @@
-Courtney Sechrist
-
+Author: Courtney Sechrist
 Issues encountered:
 *Issues with initial set-up of the threads. Used to help set up threads
 	for the server:
