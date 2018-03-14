@@ -32,6 +32,7 @@ public class UserThread extends Thread {
             String userName = reader.readLine();
             server.addUserName(userName);
             String serverMessage = "\nNew user connected: " + userName;
+            long createdMillis = System.currentTimeMillis();
             server.broadcast(serverMessage, this);
             //prints the previous contents of chat to the new user
             printChat(); 
@@ -58,6 +59,12 @@ public class UserThread extends Thread {
                 intxt.close();
                 server.removeUser(userName, this);
                 socket.close();
+                long nowMillis = System.currentTimeMillis();
+                int t = (int)((nowMillis - createdMillis) / 1000);
+                long s = t % 60;
+                long m = (t / 60) % 60;
+                long h = (t / (60 * 60)) % 24;
+                server.broadcast(h + " Hours " + m + " Minutes "  + s + " Seconds " + t + " Milliseconds");
                 /*once the last user leaves the chat, the chat
                 file is deleted.*/
                 serverMessage = userName + " has left.";
