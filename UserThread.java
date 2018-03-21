@@ -2,6 +2,7 @@
 import java.io.*;
 import java.net.*;
 import java.nio.file.*;
+import java.util.Random;
 
 /* This thread handles connection for each connected client, so the
 server can handle multiple clients at the same time. */
@@ -11,6 +12,7 @@ public class UserThread extends Thread {
     private final cs_TCPServer server;
     private PrintWriter writer;
 
+
     public UserThread(Socket socket, cs_TCPServer server) {
         this.socket = socket;
         this.server = server;
@@ -19,6 +21,7 @@ public class UserThread extends Thread {
     public void run() {
         try {
             //set up for I/O
+            
             InputStream input = socket.getInputStream();
             BufferedReader reader = new BufferedReader
                 (new InputStreamReader(input));
@@ -26,11 +29,12 @@ public class UserThread extends Thread {
             writer = new PrintWriter(output, true);
             BufferedWriter outtext = new BufferedWriter
                 (new FileWriter("cs_chat.txt", true));
-
+            
             printUsers();
 
             String userName = reader.readLine();
             server.addUserName(userName);
+            
             String serverMessage = "\nNew user connected: " + userName;
             long createdMillis = System.currentTimeMillis();
             server.broadcast(serverMessage, this);
@@ -50,8 +54,8 @@ public class UserThread extends Thread {
                             outtext.write(userName + ": " 
                                     + clientMessage + "\n");
                             outtext.flush();
-                            server.broadcast(userName + ": " 
-                                    + clientMessage, this);
+                            String emessage=encrypt(clientMessage, cs_TCPClient.skey);
+                            server.broadcast(clientMessage+" encrypted: "+emessage, this,userName);
                         }
                 } while (!clientMessage.equals("DONE"));
                 //close the readers and make deleting the file possible.
@@ -64,7 +68,8 @@ public class UserThread extends Thread {
                 long s = t % 60;
                 long m = (t / 60) % 60;
                 long h = (t / (60 * 60)) % 24;
-                server.broadcast(h + " Hours " + m + " Minutes "  + s + " Seconds " + t + " Milliseconds");
+                String time=(h + " Hours " + m + " Minutes "  + s + " Seconds " + t + " Milliseconds");
+                server.broadcast(time, this);
                 /*once the last user leaves the chat, the chat
                 file is deleted.*/
                 serverMessage = userName + " has left.";
@@ -113,4 +118,18 @@ public class UserThread extends Thread {
             writer.println("----------");
         intxt.close();
     }
+    
+    public static String encrypt(String str, int key)//both encrypts and decrypts
+    {
+        String cipher =""; //cipher holder
+        char c; //character to be XOR
+        for (int i=0; i<str.length(); i++){
+            c = str.charAt(i);
+            c = (char) (c ^ key);
+            cipher = cipher + c;
+        }
+        //System.out.println(cipher);
+        return cipher;
+    }
+    
 }

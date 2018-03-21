@@ -14,6 +14,7 @@ public class WriteThread extends Thread {
     public WriteThread(Socket socket, cs_TCPClient client) {
         this.socket = socket;
         this.client = client;
+        
 
         try {
             OutputStream output = socket.getOutputStream();

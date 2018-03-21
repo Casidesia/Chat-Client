@@ -10,6 +10,7 @@ public class ReadThread extends Thread {
     private BufferedReader reader;
     private Socket socket;
     private cs_TCPClient client;
+    
 
     public ReadThread(Socket socket, cs_TCPClient client) {
         this.socket = socket;
@@ -38,4 +39,5 @@ public class ReadThread extends Thread {
             }
         }
     }
+    
 }
